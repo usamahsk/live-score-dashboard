@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Sports Scores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f8f9fa;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        .search-box {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            outline: none;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .score-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .match {
+            font-size: 16px;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .match:last-child {
+            border-bottom: none;
+        }
+    </style>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+</head>
+<body>
+
+    <h1>Live Sports Scores</h1>
+    
+    <!-- Search Bar -->
+    <input type="text" class="search-box" placeholder="Search for a sport..." onkeyup="filterScores(this.value)">
+
+    <!-- Scores Container -->
+    <div class="score-container" id="scores">
+        <p>Loading live scores...</p>
+    </div>
+
+    <!-- Google AdSense Ad -->
+    <ins class="adsbygoogle"
+         style="display:block; margin: 20px auto;"
+         data-ad-client="ca-pub-XXXXXXX"
+         data-ad-slot="XXXXXXX"
+         data-ad-format="auto"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+    <script>
+        async function getLiveScores() {
+            try {
+                const response = await fetch('https://v3.football.api-sports.io/fixtures?live=all', {
+                    method: 'GET',
+                    headers: { 'x-apisports-key': 'YOUR_API_KEY' }
+                });
+                const data = await response.json();
+                
+                let output = '';
+                data.response.forEach(match => {
+                    output += `<div class="match">
+                        <strong>${match.league.name}</strong> <br>
+                        ${match.teams.home.name} <b>${match.goals.home} - ${match.goals.away}</b> ${match.teams.away.name}
+                    </div>`;
+                });
+
+                document.getElementById('scores').innerHTML = output || '<p>No live matches right now.</p>';
+            } catch (error) {
+                document.getElementById('scores').innerHTML = '<p>Error fetching live scores!</p>';
+            }
+        }
+
+        function filterScores(query) {
+            const matches = document.querySelectorAll('.match');
+            matches.forEach(match => {
+                match.style.display = match.innerText.toLowerCase().includes(query.toLowerCase()) ? 'block' : 'none';
+            });
+        }
+
+        getLiveScores();
+        setInterval(getLiveScores, 60000); // Refresh every 1 minute
+    </script>
+
+</body>
+</html>
